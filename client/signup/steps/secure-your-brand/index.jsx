@@ -10,7 +10,6 @@ import { localize } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { isSubdomain } from 'lib/domains';
 import { getSiteBySlug } from 'state/sites/selectors';
 import StepWrapper from 'signup/step-wrapper';
 import GutenboardingHeader from 'my-sites/plans-features-main/gutenboarding-header';
@@ -29,7 +28,7 @@ export class SecureYourBrandStep extends Component {
 	}
 
 	onSelectAdd = ( cartItem ) => {
-		const { additionalStepData, stepSectionName, stepName, flowName } = this.props;
+		const { additionalStepData, stepSectionName, stepName } = this.props;
 
 		this.props.recordTracksEvent( 'calypso_signup_brand_upsell' );
 
@@ -47,9 +46,7 @@ export class SecureYourBrandStep extends Component {
 	};
 
 	getDomainName() {
-		return (
-			this.props.signupDependencies.domainItem && this.props.signupDependencies.domainItem.meta
-		);
+		return this.props.domainItem && this.props.domainItem.meta;
 	}
 
 	handleFreePlanButtonClick = () => {
@@ -110,30 +107,22 @@ export class SecureYourBrandStep extends Component {
 	}
 }
 
-PlansStep.propTypes = {
+SecureYourBrandStep.propTypes = {
 	additionalStepData: PropTypes.object,
-	disableBloggerPlanWithNonBlogDomain: PropTypes.bool,
 	goToNextStep: PropTypes.func.isRequired,
-	hideFreePlan: PropTypes.bool,
 	selectedSite: PropTypes.object,
 	stepName: PropTypes.string.isRequired,
 	stepSectionName: PropTypes.string,
 	customerType: PropTypes.string,
 	translate: PropTypes.func.isRequired,
-	planTypes: PropTypes.array,
 	flowName: PropTypes.string,
 };
 
 export default connect(
-	( state, { path, signupDependencies: { siteSlug, domainItem } } ) => ( {
-		// Blogger plan is only available if user chose either a free domain or a .blog domain registration
-		disableBloggerPlanWithNonBlogDomain:
-			domainItem && ! isSubdomain( domainItem.meta ) && ! isDotBlogDomainRegistration( domainItem ),
-		// This step could be used to set up an existing site, in which case
-		// some descendants of this component may display discounted prices if
-		// they apply to the given site.
+	( state, { signupDependencies: { siteSlug, domainItem } } ) => ( {
 		selectedSite: siteSlug ? getSiteBySlug( state, siteSlug ) : null,
 		hasInitializedSitesBackUrl: hasInitializedSites( state ) ? '/sites/' : false,
+		domainItem,
 	} ),
 	{ recordTracksEvent, saveSignupStep, submitSignupStep }
-)( localize( PlansStep ) );
+)( localize( SecureYourBrandStep ) );
