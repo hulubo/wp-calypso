@@ -16,6 +16,7 @@ import GutenboardingHeader from 'my-sites/plans-features-main/gutenboarding-head
 import { saveSignupStep, submitSignupStep } from 'state/signup/progress/actions';
 import { recordTracksEvent } from 'state/analytics/actions';
 import hasInitializedSites from 'state/selectors/has-initialized-sites';
+import { CompactCard, Card, Button } from '@automattic/components';
 
 /**
  * Style dependencies
@@ -71,7 +72,14 @@ export class SecureYourBrandStep extends Component {
 	}
 
 	recommendedDomains() {
-		return <div>Domains</div>;
+		return (
+			<div className="secure-your-brand">
+				<Card>Domains</Card>
+				<CompactCard>
+					<Button>Help</Button>
+				</CompactCard>
+			</div>
+		);
 	}
 
 	render() {
@@ -83,18 +91,21 @@ export class SecureYourBrandStep extends Component {
 			hasInitializedSitesBackUrl,
 		} = this.props;
 
+		const subHeaderText = translate(
+			'Secure your name and save 20% with our Domain signup bundle'
+		);
+		const headerText = translate( 'Secure your name' );
+
 		return (
-			<div className="secure-your-brand">
+			<div className="secure-your-brand__step-secton-wrapper">
 				<StepWrapper
 					flowName={ flowName }
 					stepName={ stepName }
 					positionInFlow={ positionInFlow }
-					headerText={ translate( 'Secure your name' ) }
-					fallbackHeaderText={ translate( 'fallbackHeaderText' ) }
-					subHeaderText={ translate(
-						'Secure your name and save 20% with our Domain signup bundle'
-					) }
-					fallbackSubHeaderText={ translate( 'fallbackSubHeaderText' ) }
+					headerText={ headerText }
+					fallbackHeaderText={ headerText }
+					subHeaderText={ subHeaderText }
+					fallbackSubHeaderText={ subHeaderText }
 					isWideLayout={ true }
 					stepContent={ this.recommendedDomains() }
 					allowBackFirstStep={ !! hasInitializedSitesBackUrl }
