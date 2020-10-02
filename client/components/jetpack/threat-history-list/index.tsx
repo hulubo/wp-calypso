@@ -8,6 +8,7 @@ import page from 'page';
 /**
  * Internal dependencies
  */
+import QueryJetpackScanThreatCounts from 'components/data/query-jetpack-scan-threat-counts';
 import QueryJetpackScanHistory from 'components/data/query-jetpack-scan-history';
 import ThreatDialog from 'components/jetpack/threat-dialog';
 import ThreatItem from 'components/jetpack/threat-item';
@@ -27,7 +28,7 @@ import { Site } from 'my-sites/scan/types';
  */
 import './style.scss';
 
-type FilterValue = 'all' | 'fixed' | 'ignored';
+export type FilterValue = 'all' | 'fixed' | 'ignored';
 type FilterOption =
 	| {
 			value: 'all';
@@ -175,7 +176,9 @@ const ThreatHistoryList: React.FC< Props > = ( {
 
 	return (
 		<div className="threat-history-list">
+			<QueryJetpackScanThreatCounts siteId={ siteId } />
 			<QueryJetpackScanHistory siteId={ siteId } />
+
 			{ threats.length > 0 && (
 				<div className="threat-history-list__filters-wrapper">
 					<ThreatStatusFilter

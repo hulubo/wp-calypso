@@ -10,6 +10,7 @@ import {
 import { combineReducers, keyedReducer } from 'state/utils';
 import enqueueReducer from './enqueue/reducer';
 import historyReducer from './history/reducer';
+import threatCountsReducer from './threat-counts/reducer';
 import threatsReducer from './threats/reducer';
 
 export const requestStatus = keyedReducer( 'siteId', ( state, { type } ) => {
@@ -39,6 +40,7 @@ export const scan = keyedReducer( 'siteId', ( state, { type, payload } ) => {
 export default combineReducers( {
 	requestStatus,
 	scan,
+	threatCounts: threatCountsReducer,
 	threats: threatsReducer,
 	enqueue: enqueueReducer,
 	history: historyReducer,

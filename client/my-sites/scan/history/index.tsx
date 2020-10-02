@@ -10,10 +10,9 @@ import { useSelector } from 'react-redux';
  * Internal dependencies
  */
 import DocumentHead from 'components/data/document-head';
-import QueryJetpackScanHistory from 'components/data/query-jetpack-scan-history';
 import EmptyContent from 'components/empty-content';
 import FormattedHeader from 'components/formatted-header';
-import ThreatHistoryList from 'components/jetpack/threat-history-list';
+import ThreatHistoryList from 'components/jetpack/threat-history-list/index2';
 import Main from 'components/main';
 import PageViewTracker from 'lib/analytics/page-view-tracker';
 import isJetpackCloud from 'lib/jetpack/is-jetpack-cloud';
@@ -57,7 +56,6 @@ export default function ScanHistoryPage( { filter }: Props ) {
 			) }
 			{ isAdmin && (
 				<>
-					<QueryJetpackScanHistory siteId={ siteId } />
 					<ScanNavigation section={ 'history' } />
 					<section className="history__body">
 						<p className="history__description">
