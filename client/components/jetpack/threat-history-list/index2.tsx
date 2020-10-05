@@ -22,8 +22,6 @@ import ThreatStatusFilter, { FilterValue, FilterOption } from './threat-status-f
 import ThreatItem from 'components/jetpack/threat-item';
 import ThreatDialog from 'components/jetpack/threat-dialog';
 
-const LoadingThreatCounts = () => <>{ 'loading threat counts ...' }</>;
-
 const recordFilterChange = ( siteId: number, filter: string ) =>
 	recordTracksEvent( 'calypso_jetpack_scan_history_filter', {
 		site_id: siteId,
@@ -110,7 +108,9 @@ const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 			<QueryJetpackScanThreatCounts siteId={ siteId } />
 			<QueryJetpackScanHistory siteId={ siteId } />
 
-			{ isRequestingThreatCounts && <LoadingThreatCounts /> }
+			{ /* Loading threat counts should be pretty quick,
+			     so no need to show any indicators while it's happening
+			*/ }
 
 			{ ! isRequestingThreatCounts && ! hasThreatsInHistory && (
 				<span>no threats ever and ever and ever!</span>
