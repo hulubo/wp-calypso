@@ -87,10 +87,14 @@
 	}
 }
 
+.gsuite-new-user-list__new-user-name-container,
+.gsuite-new-user-list__new-user-email-container {
+	margin-bottom: 15px;
+}
+
 .gsuite-new-user-list__new-user-name-container {
 	display: flex;
 	flex-direction: column;
-	margin-bottom: 15px;
 
 	@include breakpoint-deprecated( '>800px' ) {
 		margin-bottom: 20px;
@@ -98,6 +102,22 @@
 	}
 }
 
+.gsuite-new-user-list__new-user-email-container,
+.gsuite-new-user-list__new-user-password-container {
+	@include breakpoint-deprecated( '>800px' ) {
+		margin-bottom: 0;
+	}
+}
+
 .gsuite-new-user-list__new-user-email-container {
-	width: 100%;
+	@include breakpoint-deprecated( '>800px' ) {
+		width: 62%;
+	}
+}
+
+.gsuite-new-user-list__new-user-password-container {
+	@include breakpoint-deprecated( '>800px' ) {
+		margin-right: 0;
+		width: 36%;
+	}
 }
