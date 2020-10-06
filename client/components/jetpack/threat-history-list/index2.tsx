@@ -49,12 +49,61 @@ const getFilteredThreatCount = (
 	return threatCounts[ filter ];
 };
 
+const ThreatItemsWrapper = ( { threats } ) => {
+	const dispatch = useDispatch();
+	const siteId = useSelector( getSelectedSiteId );
+	const siteSlug = useSelector( getSelectedSiteSlug );
+	const siteName = useSelector( ( state ) => getSelectedSite( state )?.name );
+	const { selectedThreat, setSelectedThreat, updateThreat, updatingThreats } = useThreats( siteId );
+
+	const [ showThreatDialog, setShowThreatDialog ] = React.useState( false );
+	const openDialog = useCallback(
+		( threat ) => {
+			dispatch( trackOpenThreatDialog( siteId, threat.signature ) );
+			setSelectedThreat( threat );
+			setShowThreatDialog( true );
+		},
+		[ dispatch, setSelectedThreat, siteId ]
+	);
+	const closeDialog = useCallback( () => {
+		setShowThreatDialog( false );
+	}, [ setShowThreatDialog ] );
+	const fixThreat = useCallback( () => {
+		closeDialog();
+		updateThreat( 'fix' );
+	}, [ closeDialog, updateThreat ] );
+
+	return (
+		<>
+			{ threats.map( ( threat ) => (
+				<ThreatItem
+					key={ threat.id }
+					isPlaceholder={ false }
+					threat={ threat }
+					onFixThreat={ () => openDialog( threat ) }
+					isFixing={ !! updatingThreats.find( ( threatId ) => threatId === threat.id ) }
+					contactSupportUrl={ contactSupportUrl( siteSlug ) }
+				/>
+			) ) }
+			{ selectedThreat && (
+				<ThreatDialog
+					showDialog={ showThreatDialog }
+					onCloseDialog={ closeDialog }
+					onConfirmation={ fixThreat }
+					siteName={ siteName }
+					threat={ selectedThreat }
+					action={ 'fix' }
+				/>
+			) }
+		</>
+	);
+};
+
 const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 	const translate = useTranslate();
 	const dispatch = useDispatch();
 	const siteId = useSelector( getSelectedSiteId ) as number;
 	const siteSlug = useSelector( getSelectedSiteSlug );
-	const siteName = useSelector( ( state ) => getSelectedSite( state )?.name );
 
 	const isRequestingThreatCounts = useSelector( ( state ) =>
 		isRequestingJetpackScanThreatCounts( state, siteId )
@@ -88,24 +137,6 @@ const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 		},
 		[ dispatch, siteId, siteSlug ]
 	);
-
-	const { selectedThreat, setSelectedThreat, updateThreat, updatingThreats } = useThreats( siteId );
-	const [ showThreatDialog, setShowThreatDialog ] = React.useState( false );
-	const openDialog = useCallback(
-		( threat ) => {
-			dispatch( trackOpenThreatDialog( siteId, threat.signature ) );
-			setSelectedThreat( threat );
-			setShowThreatDialog( true );
-		},
-		[ dispatch, setSelectedThreat, siteId ]
-	);
-	const closeDialog = useCallback( () => {
-		setShowThreatDialog( false );
-	}, [ setShowThreatDialog ] );
-	const fixThreat = useCallback( () => {
-		closeDialog();
-		updateThreat( 'fix' );
-	}, [ closeDialog, updateThreat ] );
 
 	return (
 		<div className="threat-history-list">
@@ -141,30 +172,7 @@ const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 								<ThreatItemPlaceholder key={ key } />
 							) )
 					}
-					{ ! isRequestingThreatHistory && (
-						<>
-							{ filteredThreats.map( ( threat ) => (
-								<ThreatItem
-									key={ threat.id }
-									threat={ threat }
-									onFixThreat={ () => openDialog( threat ) }
-									isFixing={ !! updatingThreats.find( ( threatId ) => threatId === threat.id ) }
-									contactSupportUrl={ contactSupportUrl( siteSlug ) }
-									isPlaceholder={ isRequestingThreatHistory }
-								/>
-							) ) }
-							{ selectedThreat && (
-								<ThreatDialog
-									showDialog={ showThreatDialog }
-									onCloseDialog={ closeDialog }
-									onConfirmation={ fixThreat }
-									siteName={ siteName }
-									threat={ selectedThreat }
-									action={ 'fix' }
-								/>
-							) }
-						</>
-					) }
+					{ ! isRequestingThreatHistory && <ThreatItemsWrapper threats={ filteredThreats } /> }
 				</div>
 			) }
 		</div>
