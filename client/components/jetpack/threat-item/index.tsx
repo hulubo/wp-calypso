@@ -34,6 +34,14 @@ interface Props {
 	contactSupportUrl?: string;
 }
 
+export const ThreatItemPlaceholder: React.FC = () => (
+	<LogItem
+		className={ classnames( 'threat-item', 'is-placeholder' ) }
+		header="Placeholder threat"
+		subheader="Placeholder sub header"
+	/>
+);
+
 const ThreatItem: React.FC< Props > = ( {
 	threat,
 	isPlaceholder,
@@ -108,13 +116,7 @@ const ThreatItem: React.FC< Props > = ( {
 	} );
 
 	if ( isPlaceholder ) {
-		return (
-			<LogItem
-				className={ classnames( 'threat-item', 'is-placeholder' ) }
-				header="Placeholder threat"
-				subheader="Placeholder sub header"
-			></LogItem>
-		);
+		return <ThreatItemPlaceholder />;
 	}
 
 	return (

@@ -8,6 +8,7 @@ import page from 'page';
 /**
  * Internal dependencies
  */
+import { useTranslate } from 'i18n-calypso';
 import contactSupportUrl from 'lib/jetpack/contact-support-url';
 import { useThreats } from 'lib/jetpack/use-threats';
 import { recordTracksEvent } from 'state/analytics/actions';
@@ -19,16 +20,24 @@ import getScanSiteHistory from 'state/selectors/get-site-scan-history';
 import QueryJetpackScanThreatCounts from 'components/data/query-jetpack-scan-threat-counts';
 import QueryJetpackScanHistory from 'components/data/query-jetpack-scan-history';
 import ThreatStatusFilter, { FilterValue, FilterOption } from './threat-status-filter';
-import ThreatItem from 'components/jetpack/threat-item';
+import ThreatItem, { ThreatItemPlaceholder } from 'components/jetpack/threat-item';
 import ThreatDialog from 'components/jetpack/threat-dialog';
 
-const recordFilterChange = ( siteId: number, filter: string ) =>
+const trackFilterChange = ( siteId: number, filter: string ) =>
 	recordTracksEvent( 'calypso_jetpack_scan_history_filter', {
 		site_id: siteId,
 		filter,
 	} );
+const trackOpenThreatDialog = ( siteId: number, threatSignature: string ) =>
+	recordTracksEvent( 'calypso_jetpack_scan_fixthreat_dialogopen', {
+		site_id: siteId,
+		threat_signature: threatSignature,
+	} );
 
-const getFilteredThreatCount = ( threatCounts, filter ) => {
+const getFilteredThreatCount = (
+	threatCounts: { [ key: string ]: number },
+	filter: FilterValue
+) => {
 	if ( ! threatCounts ) {
 		return undefined;
 	}
@@ -41,6 +50,7 @@ const getFilteredThreatCount = ( threatCounts, filter ) => {
 };
 
 const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
+	const translate = useTranslate();
 	const dispatch = useDispatch();
 	const siteId = useSelector( getSelectedSiteId ) as number;
 	const siteSlug = useSelector( getSelectedSiteSlug );
@@ -73,7 +83,7 @@ const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 				filterPathParam = '';
 			}
 
-			dispatch( recordFilterChange( siteId, filterPathParam ) );
+			dispatch( trackFilterChange( siteId, filterPathParam ) );
 			page.show( `/scan/history/${ siteSlug }/${ filterPathParam }` );
 		},
 		[ dispatch, siteId, siteSlug ]
@@ -83,13 +93,7 @@ const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 	const [ showThreatDialog, setShowThreatDialog ] = React.useState( false );
 	const openDialog = useCallback(
 		( threat ) => {
-			const eventName = 'calypso_jetpack_scan_fixthreat_dialogopen';
-			dispatch(
-				recordTracksEvent( eventName, {
-					site_id: siteId,
-					threat_signature: threat.signature,
-				} )
-			);
+			dispatch( trackOpenThreatDialog( siteId, threat.signature ) );
 			setSelectedThreat( threat );
 			setShowThreatDialog( true );
 		},
@@ -113,21 +117,30 @@ const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 			*/ }
 
 			{ ! isRequestingThreatCounts && ! hasThreatsInHistory && (
-				<span>no threats ever and ever and ever!</span>
+				<p className="threat-history-list__no-entries">
+					{ translate( 'So far, there are no archived threats on your site.' ) }
+				</p>
 			) }
 
-			{ ! isRequestingThreatCounts && hasThreatsInHistory && (
-				<div className="threat-history-list__filters-wrapper">
-					<ThreatStatusFilter initialSelected={ filter } onSelect={ onFilterChange } />
-				</div>
-			) }
+			{
+				// We can safely show the filter selector without having specific threat info
+				! isRequestingThreatCounts && hasThreatsInHistory && (
+					<div className="threat-history-list__filters-wrapper">
+						<ThreatStatusFilter initialSelected={ filter } onSelect={ onFilterChange } />
+					</div>
+				)
+			}
 
 			{ ! isRequestingThreatCounts && filteredThreatCount > 0 && (
 				<div className="threat-history-list__entries">
-					{ isRequestingThreatHistory &&
-						Array.from( Array( filteredThreatCount ).keys() ).map( ( key ) => (
-							<ThreatItem key={ key } isPlaceholder threat={ {} } isFixing={ false } />
-						) ) }
+					{
+						// Show placeholders if we're still getting threat info,
+						// but 10 placeholders is probably the most we'd ever want to show
+						isRequestingThreatHistory &&
+							Array.from( Array( Math.min( filteredThreatCount, 10 ) ).keys() ).map( ( key ) => (
+								<ThreatItemPlaceholder key={ key } />
+							) )
+					}
 					{ ! isRequestingThreatHistory && (
 						<>
 							{ filteredThreats.map( ( threat ) => (

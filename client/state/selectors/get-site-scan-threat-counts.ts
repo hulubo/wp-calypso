@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { AppState } from 'types';
+
+/**
  * Internal dependencies
  */
 import 'state/data-layer/wpcom/sites/scan';
@@ -11,6 +16,9 @@ import 'state/data-layer/wpcom/sites/scan';
  * @param  {number}   siteId   		The ID of the site we're querying
  * @returns {[key: string]: number} Array of threat counts, by status
  */
-export default function getSiteScanThreatCounts( state, siteId ) {
+export default function getSiteScanThreatCounts(
+	state: AppState,
+	siteId: number
+): { [ key: string ]: number } {
 	return state.jetpackScan.threatCounts.data?.[ siteId ] || [];
 }
