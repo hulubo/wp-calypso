@@ -1,16 +1,6 @@
-
 // ==========================================================================
 // Global form elements
 // ==========================================================================
-textarea {
-	@extend %form-field;
-}
-textarea {
-	@extend %textarea;
-	border-radius: 2px;
-}
-
-textarea,
 label {
 	box-sizing: border-box;
 }
