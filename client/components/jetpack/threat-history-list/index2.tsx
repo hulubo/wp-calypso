@@ -99,6 +99,24 @@ const ThreatItemsWrapper = ( { threats } ) => {
 	);
 };
 
+const getNoThreatsMessage = ( translate, filter ) => {
+	if ( ! filter || filter === '' ) {
+		return translate( 'So far, there are no archived threats on your site.' );
+	}
+
+	if ( filter === 'fixed' ) {
+		return translate( 'So far, there are no fixed threats on your site.', {
+			comment: '"fixed," as in the past tense of "to fix"',
+		} );
+	}
+
+	if ( filter === 'ignored' ) {
+		return translate( 'So far, there are no ignored threats on your site.' );
+	}
+
+	return null;
+};
+
 const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 	const translate = useTranslate();
 	const dispatch = useDispatch();
@@ -147,12 +165,6 @@ const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 			     so no need to show any indicators while it's happening
 			*/ }
 
-			{ ! isRequestingThreatCounts && ! hasThreatsInHistory && (
-				<p className="threat-history-list__no-entries">
-					{ translate( 'So far, there are no archived threats on your site.' ) }
-				</p>
-			) }
-
 			{
 				// We can safely show the filter selector without having specific threat info
 				! isRequestingThreatCounts && hasThreatsInHistory && (
@@ -161,6 +173,12 @@ const ThreatHistoryList = ( { filter }: ThreatHistoryListProps ) => {
 					</div>
 				)
 			}
+
+			{ ! isRequestingThreatCounts && filteredThreatCount === 0 && (
+				<p className="threat-history-list__no-entries">
+					{ getNoThreatsMessage( translate, filter ) }
+				</p>
+			) }
 
 			{ ! isRequestingThreatCounts && filteredThreatCount > 0 && (
 				<div className="threat-history-list__entries">

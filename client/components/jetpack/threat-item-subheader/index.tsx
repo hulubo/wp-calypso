@@ -33,6 +33,32 @@ const formatDate = ( date: Date ) => {
 	return moment( date ).format( 'LL' );
 };
 
+const getThreatStatusMessage = ( translate, action, date ) => {
+	if ( action === 'fixed' ) {
+		return date
+			? translate( 'Threat fixed on %(date)s', {
+					args: { date },
+					comment: 'Past tense action: a threat was fixed on a specific date',
+			  } )
+			: translate( 'Threat fixed', {
+					comment: 'Past tense action: a threat was fixed on an unspecified date',
+			  } );
+	}
+
+	if ( action === 'ignored' ) {
+		return date
+			? translate( 'Threat ignored on %(date)s', {
+					args: { date },
+					comment: 'Past tense action: a threat was ignored on a specific date',
+			  } )
+			: translate( 'Threat ignored', {
+					comment: 'Past tense action: a threat was ignored on an unspecified date',
+			  } );
+	}
+
+	return null;
+};
+
 // This renders two different kind of sub-headers. One is for current threats (displayed
 // in the Scanner section), and the other for threats in the History section.
 const ThreatItemSubheader: React.FC< Props > = ( { threat } ) => {
@@ -72,9 +98,7 @@ const ThreatItemSubheader: React.FC< Props > = ( { threat } ) => {
 								entryActionClassNames( threat )
 							) }
 						>
-							{ translate( 'Threat %(action)s on %(fixedOn)s', {
-								args: { action: threat.status, fixedOn: formatDate( threat.fixedOn ) },
-							} ) }
+							{ getThreatStatusMessage( translate, threat.status, formatDate( threat.fixedOn ) ) }
 						</span>
 					) }
 				</div>
