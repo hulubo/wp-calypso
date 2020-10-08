@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import page from 'page';
 
@@ -9,19 +9,25 @@ import page from 'page';
  * Internal dependencies
  */
 import { useTranslate } from 'i18n-calypso';
-import contactSupportUrl from 'lib/jetpack/contact-support-url';
-import { useThreats } from 'lib/jetpack/use-threats';
-import { recordTracksEvent } from 'state/analytics/actions';
-import { getSelectedSite, getSelectedSiteId, getSelectedSiteSlug } from 'state/ui/selectors';
-import isRequestingJetpackScanThreatCounts from 'state/selectors/is-requesting-jetpack-scan-threat-counts';
-import isRequestingJetpackScanHistory from 'state/selectors/is-requesting-jetpack-scan-history';
-import getScanSiteThreatCounts from 'state/selectors/get-site-scan-threat-counts';
-import getScanSiteHistory from 'state/selectors/get-site-scan-history';
-import QueryJetpackScanThreatCounts from 'components/data/query-jetpack-scan-threat-counts';
-import QueryJetpackScanHistory from 'components/data/query-jetpack-scan-history';
+import { useMobileBreakpoint } from '@automattic/viewport-react';
+import contactSupportUrl from 'calypso/lib/jetpack/contact-support-url';
+import { useThreats } from 'calypso/lib/jetpack/use-threats';
+import { recordTracksEvent } from 'calypso/state/analytics/actions';
+import {
+	getSelectedSite,
+	getSelectedSiteId,
+	getSelectedSiteSlug,
+} from 'calypso/state/ui/selectors';
+import isRequestingJetpackScanThreatCounts from 'calypso/state/selectors/is-requesting-jetpack-scan-threat-counts';
+import isRequestingJetpackScanHistory from 'calypso/state/selectors/is-requesting-jetpack-scan-history';
+import getScanSiteThreatCounts from 'calypso/state/selectors/get-site-scan-threat-counts';
+import getScanSiteHistory from 'calypso/state/selectors/get-site-scan-history';
+import QueryJetpackScanThreatCounts from 'calypso/components/data/query-jetpack-scan-threat-counts';
+import QueryJetpackScanHistory from 'calypso/components/data/query-jetpack-scan-history';
+import Pagination from 'calypso/components/pagination';
 import ThreatStatusFilter, { FilterValue, FilterOption } from './threat-status-filter';
-import ThreatItem, { ThreatItemPlaceholder } from 'components/jetpack/threat-item';
-import ThreatDialog from 'components/jetpack/threat-dialog';
+import ThreatItem, { ThreatItemPlaceholder } from 'calypso/components/jetpack/threat-item';
+import ThreatDialog from 'calypso/components/jetpack/threat-dialog';
 
 const trackFilterChange = ( siteId: number, filter: string ) =>
 	recordTracksEvent( 'calypso_jetpack_scan_history_filter', {
@@ -49,8 +55,12 @@ const getFilteredThreatCount = (
 	return threatCounts[ filter ];
 };
 
+const THREATS_PER_PAGE = 10;
 const ThreatItemsWrapper = ( { threats } ) => {
+	const translate = useTranslate();
+	const isMobile = useMobileBreakpoint();
 	const dispatch = useDispatch();
+
 	const siteId = useSelector( getSelectedSiteId );
 	const siteSlug = useSelector( getSelectedSiteSlug );
 	const siteName = useSelector( ( state ) => getSelectedSite( state )?.name );
@@ -73,18 +83,47 @@ const ThreatItemsWrapper = ( { threats } ) => {
 		updateThreat( 'fix' );
 	}, [ closeDialog, updateThreat ] );
 
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+
 	return (
 		<>
-			{ threats.map( ( threat ) => (
-				<ThreatItem
-					key={ threat.id }
-					isPlaceholder={ false }
-					threat={ threat }
-					onFixThreat={ () => openDialog( threat ) }
-					isFixing={ !! updatingThreats.find( ( threatId ) => threatId === threat.id ) }
-					contactSupportUrl={ contactSupportUrl( siteSlug ) }
+			{ threats.length > THREATS_PER_PAGE && (
+				<Pagination
+					compact={ isMobile }
+					className="threat-history-list__pagination--top"
+					total={ threats.length }
+					perPage={ THREATS_PER_PAGE }
+					page={ currentPage }
+					pageClick={ setCurrentPage }
+					nextLabel={ translate( 'Older' ) }
+					prevLabel={ translate( 'Newer' ) }
 				/>
-			) ) }
+			) }
+			{ threats
+				.slice( ( currentPage - 1 ) * THREATS_PER_PAGE, currentPage * THREATS_PER_PAGE )
+				.map( ( threat ) => (
+					<ThreatItem
+						key={ threat.id }
+						isPlaceholder={ false }
+						threat={ threat }
+						onFixThreat={ () => openDialog( threat ) }
+						isFixing={ !! updatingThreats.find( ( threatId ) => threatId === threat.id ) }
+						contactSupportUrl={ contactSupportUrl( siteSlug ) }
+					/>
+				) ) }
+			{ threats.length > THREATS_PER_PAGE && (
+				<Pagination
+					compact={ isMobile }
+					className="threat-history-list__pagination--bottom"
+					total={ threats.length }
+					perPage={ THREATS_PER_PAGE }
+					page={ currentPage }
+					pageClick={ setCurrentPage }
+					nextLabel={ translate( 'Older' ) }
+					prevLabel={ translate( 'Newer' ) }
+				/>
+			) }
+
 			{ selectedThreat && (
 				<ThreatDialog
 					showDialog={ showThreatDialog }

@@ -4,6 +4,14 @@
 		font-size: $font-body;
 	}
 
+	&__pagination--top {
+		margin-bottom: 16px;
+	}
+
+	&__pagination-bottom {
+		margin-top: 16px;
+	}
+
 	&__filters-wrapper {
 		margin: 8px 0 24px;
 		text-align: center;
