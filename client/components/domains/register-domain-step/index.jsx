@@ -60,6 +60,7 @@ import {
 import { getCurrentUser } from 'state/current-user/selectors';
 import QueryContactDetailsCache from 'components/data/query-contact-details-cache';
 import QueryDomainsSuggestions from 'components/data/query-domains-suggestions';
+import QuerySecureYourBrand from 'components/data/query-secure-your-brand';
 import { hasDomainInCart } from 'lib/cart-values/cart-items';
 import {
 	getDomainsSuggestions,
@@ -481,6 +482,9 @@ class RegisterDomainStep extends React.Component {
 				{ this.renderPaginationControls() }
 				{ queryObject && <QueryDomainsSuggestions { ...queryObject } /> }
 				<QueryContactDetailsCache />
+				{ this.state.pendingCheckSuggestion && (
+					<QuerySecureYourBrand domain={ this.state.pendingCheckSuggestion.domain_name } />
+				) }
 			</div>
 		);
 	}
