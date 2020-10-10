@@ -70,7 +70,11 @@ export async function genericRedirectProcessor(
 			domainDetails: getDomainDetails( { includeDomainDetails, includeGSuiteDetails } ),
 		},
 		wpcomTransaction
-	).then( saveTransactionResponseToWpcomStore );
+	)
+		.then( saveTransactionResponseToWpcomStore )
+		.then( ( response ) => {
+			return { type: 'SUCCESS', payload: response };
+		} );
 }
 
 export async function applePayProcessor(
@@ -88,7 +92,11 @@ export async function applePayProcessor(
 		},
 		wpcomTransaction,
 		transactionOptions
-	).then( saveTransactionResponseToWpcomStore );
+	)
+		.then( saveTransactionResponseToWpcomStore )
+		.then( ( response ) => {
+			return { type: 'SUCCESS', payload: response };
+		} );
 }
 
 export async function stripeCardProcessor(
@@ -163,23 +171,24 @@ export async function ebanxCardProcessor(
 
 export async function multiPartnerCardProcessor(
 	submitData,
-	{ includeDomainDetails, includeGSuiteDetails },
+	{ includeDomainDetails, includeGSuiteDetails, recordEvent },
 	transactionOptions
 ) {
 	const paymentPartner = submitData.paymentPartner;
-
 	if ( paymentPartner === 'stripe' ) {
 		return stripeCardProcessor(
 			submitData,
-			{ includeDomainDetails, includeGSuiteDetails },
+			{ includeDomainDetails, includeGSuiteDetails, recordEvent },
 			transactionOptions
 		);
 	}
-
 	if ( paymentPartner === 'ebanx' ) {
-		return ebanxCardProcessor( submitData, { includeDomainDetails, includeGSuiteDetails } );
+		return ebanxCardProcessor( submitData, {
+			includeDomainDetails,
+			includeGSuiteDetails,
+			recordEvent,
+		} );
 	}
-
 	throw new RangeError( 'Unrecognized card payment partner: "' + paymentPartner + '"' );
 }
 
@@ -234,7 +243,11 @@ export async function freePurchaseProcessor(
 			postalCode: null,
 		},
 		wpcomTransaction
-	).then( saveTransactionResponseToWpcomStore );
+	)
+		.then( saveTransactionResponseToWpcomStore )
+		.then( ( response ) => {
+			return { type: 'SUCCESS', payload: response };
+		} );
 }
 
 export async function fullCreditsProcessor(
@@ -253,7 +266,11 @@ export async function fullCreditsProcessor(
 		},
 		wpcomTransaction,
 		transactionOptions
-	).then( saveTransactionResponseToWpcomStore );
+	)
+		.then( saveTransactionResponseToWpcomStore )
+		.then( ( response ) => {
+			return { type: 'SUCCESS', payload: response };
+		} );
 }
 
 export async function payPalProcessor(
@@ -291,7 +308,11 @@ export async function payPalProcessor(
 		},
 		wpcomPayPalExpress,
 		transactionOptions
-	).then( saveTransactionResponseToWpcomStore );
+	)
+		.then( saveTransactionResponseToWpcomStore )
+		.then( ( response ) => {
+			return { type: 'REDIRECT', payload: response };
+		} );
 }
 
 async function saveTransactionResponseToWpcomStore( result ) {
