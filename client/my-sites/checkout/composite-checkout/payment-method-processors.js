@@ -73,7 +73,7 @@ export async function genericRedirectProcessor(
 	)
 		.then( saveTransactionResponseToWpcomStore )
 		.then( ( response ) => {
-			return { type: 'SUCCESS', payload: response };
+			return { type: 'REDIRECT', payload: response?.redirect_url };
 		} );
 }
 
