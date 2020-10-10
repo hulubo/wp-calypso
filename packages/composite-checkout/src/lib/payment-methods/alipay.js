@@ -138,7 +138,7 @@ function AlipayPayButton( { disabled, onClick, store, stripe, stripeConfiguratio
 				if ( isFormValid( store ) ) {
 					debug( 'submitting alipay payment' );
 					onEvent( { type: 'REDIRECT_TRANSACTION_BEGIN', payload: { paymentMethodId: 'alipay' } } );
-					onClick( {
+					onClick( 'alipay', {
 						stripe,
 						name: customerName?.value,
 						items,
