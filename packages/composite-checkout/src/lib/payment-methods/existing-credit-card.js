@@ -120,7 +120,7 @@ function ExistingCardPayButton( {
 			onClick={ () => {
 				debug( 'submitting existing card payment' );
 				onEvent( { type: 'EXISTING_CARD_TRANSACTION_BEGIN' } );
-				onClick( {
+				onClick( 'existing-card', {
 					items,
 					total,
 					name: cardholderName,
